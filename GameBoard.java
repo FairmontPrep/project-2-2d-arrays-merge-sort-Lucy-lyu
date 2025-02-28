@@ -1,73 +1,69 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
 
 public class GameBoard extends JFrame {
-    public int SIZE = 8;
-    private JPanel[][] squares = new JPanel[SIZE][SIZE]; // 2D array for board
-    private String[][] piecesArray; //2D array = image::HP::board position
+    private static final int SIZE = 8; // Size of chessboard
+    private JPanel[][] squares = new JPanel[SIZE][SIZE]; // 2D array for the chessboard
+    private String[][] piecesArray; // 2D array to store piece names, colors, and positions
 
     public GameBoard() {
-        setTitle("Chess Board");
+        setTitle("Chessboard");
         setSize(750, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new GridLayout(SIZE, SIZE)); // Use GridLayout for the board layout
+        setLayout(new GridLayout(SIZE, SIZE)); // Use GridLayout for the chessboard layout
 
-        // Initialize the 2D array of panels
+        // Initialize the 2D array of panels (for squares)
         for (int row = 0; row < SIZE; row++) {
             for (int col = 0; col < SIZE; col++) {
                 squares[row][col] = new JPanel();
+                // Set alternate colors for the chessboard squares (black and white)
                 if ((row + col) % 2 == 0) {
-                    squares[row][col].setBackground(Color.BLACK); // Black squares
-                } else {
                     squares[row][col].setBackground(Color.WHITE); // White squares
+                } else {
+                    squares[row][col].setBackground(Color.BLACK); // Black squares
                 }
                 add(squares[row][col]); // Add each square to the board
             }
         }
 
-        // Initialize chess pieces array
-        piecesArray = new String[32][3];  
-        loadPieces();
+        // Initialize the pieces array (you can add more pieces as needed)
+        piecesArray = new String[32][3]; // Array to store piece name, color, and position
+        loadPieces(); // Load the chess pieces into the array
 
-        // Sort images using Merge Sort before placing them on the board
-        mergeSort(piecesArray, 0, piecesArray.length - 1);
-
-        // Populate the board with sorted pieces
+        // Initially populate the board with pieces
         populateBoard();
     }
 
-    /** Merge Sort Implementation */
-    private void mergeSort(String[][] array, int left, int right) {
+    // Merge Sort to arrange pieces based on their positions on the chessboard
+    public void mergeSort(String[][] array, int left, int right) {
         if (left < right) {
-            int mid = left + (right - left) / 2;
-
-            // Recursively divide array
-            mergeSort(array, left, mid);
-            mergeSort(array, mid + 1, right);
-
-            // Merge sorted halves
-            merge(array, left, mid, right);
+            int mid = (left + right) / 2;
+            mergeSort(array, left, mid);  // Sort the left half
+            mergeSort(array, mid + 1, right); // Sort the right half
+            merge(array, left, mid, right);  // Merge the two halves
         }
     }
 
-    /** Merge two sorted subarrays */
+    // Merge method used by mergeSort
     private void merge(String[][] array, int left, int mid, int right) {
-        int leftSize = mid - left + 1;
-        int rightSize = right - mid;
+        int n1 = mid - left + 1;
+        int n2 = right - mid;
+        String[][] leftArray = new String[n1][3];
+        String[][] rightArray = new String[n2][3];
 
-        // Temporary arrays
-        String[][] leftArray = new String[leftSize][3];
-        String[][] rightArray = new String[rightSize][3];
-
-        // Copy data into temporary arrays
-        for (int i = 0; i < leftSize; i++)
+        // Copy data to temporary arrays leftArray[] and rightArray[]
+        for (int i = 0; i < n1; i++) {
             leftArray[i] = array[left + i];
-        for (int j = 0; j < rightSize; j++)
+        }
+        for (int j = 0; j < n2; j++) {
             rightArray[j] = array[mid + 1 + j];
+        }
 
-        // Merge back to original array
-        int i = 0, j = 0, k = left;
-        while (i < leftSize && j < rightSize) {
+        // Merge the temporary arrays back into array[]
+        int i = 0, j = 0;
+        int k = left;
+        while (i < n1 && j < n2) {
             if (Integer.parseInt(leftArray[i][2]) <= Integer.parseInt(rightArray[j][2])) {
                 array[k] = leftArray[i];
                 i++;
@@ -78,57 +74,62 @@ public class GameBoard extends JFrame {
             k++;
         }
 
-        // Copy remaining elements
-        while (i < leftSize) {
+        // Copy the remaining elements of leftArray[], if any
+        while (i < n1) {
             array[k] = leftArray[i];
             i++;
             k++;
         }
-        while (j < rightSize) {
+
+        // Copy the remaining elements of rightArray[], if any
+        while (j < n2) {
             array[k] = rightArray[j];
             j++;
             k++;
         }
     }
 
+    // Populate the board with pieces after sorting
     private void populateBoard() {
-        int pieceRow = 0;
-        int squareName = 1; // all squares numbered 1-64
+        //mergeSort(piecesArray, 0, piecesArray.length - 1); // Sort pieces based on position
+
+        int pieceRow = 0; // Keeps track of the number of pieces
+        int squareName = 0; // All squares are numbered 1-64
 
         for (int row = 0; row < SIZE; row++) {
             for (int col = 0; col < SIZE; col++) {
-                if (pieceRow < piecesArray.length) {
-                    int piecePosition = Integer.parseInt(piecesArray[pieceRow][2]);
+                int boardPosition = Integer.parseInt(piecesArray[pieceRow][2]);
 
-                    if (squareName == piecePosition) {
-                        String imagePath = piecesArray[pieceRow][0];
-                        String hpText = piecesArray[pieceRow][1];
+                // If the square number matches the piece position, place the piece
+                if (squareName == boardPosition) {
+                    String imagePath = piecesArray[pieceRow][0]; // Save the image path
+                    String pieceName = piecesArray[pieceRow][1]; // Save the piece name
 
-                        ImageIcon icon = new ImageIcon(imagePath);
-                        Image scaledImage = icon.getImage().getScaledInstance(40, 42, Image.SCALE_SMOOTH);
+                    ImageIcon icon = new ImageIcon(imagePath);
+                    Image scaledImage = icon.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
 
-                        JLabel pieceLabel = new JLabel(new ImageIcon(scaledImage));
-                        JLabel textLabel = new JLabel(hpText, SwingConstants.CENTER);
-                        textLabel.setForeground(Color.BLACK);
+                    JLabel pieceLabel = new JLabel(new ImageIcon(scaledImage));
+                    JLabel textLabel = new JLabel(pieceName, SwingConstants.CENTER);
+                    textLabel.setForeground(Color.BLACK); // Make text black and centered at the bottom
 
-                        JPanel piecePanel = new JPanel(new BorderLayout());
-                        piecePanel.setOpaque(false);
-                        piecePanel.add(pieceLabel, BorderLayout.CENTER);
-                        piecePanel.add(textLabel, BorderLayout.SOUTH);
+                    JPanel piecePanel = new JPanel(new BorderLayout());
+                    piecePanel.setOpaque(false); // Transparent background
+                    piecePanel.add(pieceLabel, BorderLayout.CENTER);
+                    piecePanel.add(textLabel, BorderLayout.SOUTH);
 
-                        squares[row][col].setLayout(new BorderLayout());
-                        squares[row][col].add(piecePanel, BorderLayout.CENTER);
+                    squares[row][col].setLayout(new BorderLayout());
+                    squares[row][col].add(piecePanel, BorderLayout.CENTER);
 
-                        pieceRow++;
-                    }
+                    pieceRow++; // Move to the next piece
                 }
-                squareName++;
+                squareName++; // Move to the next square
             }
         }
 
-        revalidate();
-        repaint();
+        revalidate(); // Ensure layout updates
+        repaint(); // Refresh view
     }
+
 
     private void loadPieces() {
         // Initialize chess pieces
