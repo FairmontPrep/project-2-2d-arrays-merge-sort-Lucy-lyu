@@ -164,6 +164,7 @@ public class GameBoard extends JFrame {
         piecesArray[29][0] = "black 4.png"; piecesArray[29][1] = "HP:3"; piecesArray[29][2]="54";
         piecesArray[30][0] = "black 5.png"; piecesArray[30][1] = "HP:3"; piecesArray[30][2]="55";
         piecesArray[31][0] = "black 6.png"; piecesArray[31][1] = "HP:5"; piecesArray[31][2]="56";
+        piecesArray[31][0] = "black 6.png"; piecesArray[31][1] = "HP:5"; piecesArray[31][2]="56";
     }
 
     public static void main(String[] args) {
